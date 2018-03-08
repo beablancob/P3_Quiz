@@ -90,18 +90,23 @@ exports.testCmd = (rl, id) => {
     } else {
         try {
            const quiz = model.getByIndex(id);
+           console.log(colorize(`${quiz.question}`, 'magenta'));
+           rl.question(colorize('Introduzca la respuesta: ', 'magenta'), answer =>{
 
-           rl.question(answer =>{
-              if( answer === quiz.answer) {
-                  biglog('CORRECTO!', 'green');
-                  rl.prompt();
+               //trim quita los espacios en blanco
+               //tambien quitamos las mayusculas
+               var respuesta = answer.toLowerCase().trim();
 
-              } else {
-                  biglog('INCORRECTO!', 'red');
-                  rl.prompt();
-              }
-
-            });
+               if(respuesta === quiz.answer.toLowerCase()){
+                   log('Eres un genio!', 'green');
+                   biglog('CORRECTO!', 'green');
+                   rl.prompt();
+               } else {
+                   log('Otra vez será...', 'red');
+                   biglog('INCORRECTO!', 'red');
+                   rl.prompt();
+               }
+           });
 
         }catch (error) {
             errorlog(error.message);
@@ -117,8 +122,53 @@ exports.testCmd = (rl, id) => {
  * @param rl Objeto readline usado para implementar el CLI.
  */
 exports.playCmd = rl => {
-    log("Jugar.", 'red');
-    rl.prompt();
+
+   let score = 0;
+   //Array que guarda las preguntas respondidas correctamente para que no se repitan
+   //let toBeResolved = [];
+
+  let toBeResolved = [];
+   //toBeResolved = model.getAll();
+var i;
+for(i = 0; i<model.getAll().length; i++){
+    model[i]=toBeResolved[i];
+}
+    //Si el array esta vacio, mensaje que no hay nada que preguntar
+    //Los resultados
+    if(toBeResolved === 0){
+       log('Eres el mejor! Has ganado la partida, acertando ', score, 'preguntas.');
+        score=0;
+        biglog('WIN','green');
+        rl.prompt();
+    } else {
+       let id = Math.random()*(toBeResolved.length-1) + 1; //quitarla del array metodo
+        //let quiz = model.getByIndex(id);
+        let quizzz = toBeResolved[id];
+        console.log(colorize(`${quizzz.question}`, 'magenta'));
+        rl.question(colorize('Introduzca la respuesta: ', 'magenta'), answer =>{
+
+            var ans = answer.toLowerCase().trim();
+
+            if(ans === quizzz.answer.toLowerCase()){
+                score++;
+                log('Eres un genio!, Llevas ', score, 'respuestas correctas.');
+                toBeResolved.splice(1, id);
+                rl.prompt();
+            } else {
+
+                log('Otra vez será... Has contestado', score, 'preguntas correctamente.');
+                score =0;
+                rl.prompt();
+            }
+        });
+
+
+    }
+
+
+
+
+
 };
 
 /**
