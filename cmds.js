@@ -90,8 +90,8 @@ exports.testCmd = (rl, id) => {
     } else {
         try {
            const quiz = model.getByIndex(id);
-           console.log(colorize(`${quiz.question}`, 'red'));
-           rl.question(colorize('Introduzca la respuesta: ', 'red'), answer =>{
+           //console.log(colorize(`${quiz.question}`, 'red'));
+           rl.question(colorize(`¿${quiz.question}?  `, 'red'), answer =>{
 
                //trim quita los espacios en blanco
                //tambien quitamos las mayusculas
@@ -144,8 +144,8 @@ exports.playCmd = rl => {
             log(`${toBeResolved.length}`);
 
             let quizzz = toBeResolved[id];
-            console.log(colorize(`${quizzz.question}`, 'red'));
-            rl.question(colorize('Introduzca la respuesta: ', 'red'), answer => {
+            //console.log(colorize(`${quizzz.question}`, 'red'));
+            rl.question(colorize(`¿${quizzz.question}?  `, 'red'), answer => {
 
                 var ans = answer.toLowerCase().trim();
 
