@@ -96,14 +96,14 @@ exports.testCmd = (rl, id) => {
                //trim quita los espacios en blanco
                //tambien quitamos las mayusculas
                var respuesta = answer.toLowerCase().trim();
-
+               log(' Su respuesta es: ');
                if(respuesta === quiz.answer.toLowerCase()){
-                   biglog('CORRECTO!', 'green');
+                   biglog('CORRECTA!', 'green');
                    log('Eres un genio!', 'green');
 
                    rl.prompt();
                } else {
-                   biglog('INCORRECTO!', 'red');
+                   biglog('INCORRECTA!', 'red');
                    log('Otra vez será...', 'red');
 
                    rl.prompt();
@@ -146,20 +146,21 @@ exports.playCmd = rl => {
             let quizzz = toBeResolved[id];
             //console.log(colorize(`${quizzz.question}`, 'red'));
             rl.question(colorize(`¿${quizzz.question}?  `, 'red'), answer => {
-
+                log(' Su respuesta es: ');
                 var ans = answer.toLowerCase().trim();
 
                 if (ans === quizzz.answer.toLowerCase()) {
                     score++;
 
-                    log('Eres un genio!, Llevas ' + score + ' respuestas correctas.');
+                    log('Correcto. Eres un genio! Llevas ' + score + ' respuestas correctas.');
                     toBeResolved.splice(id, 1);
 
                     rl.prompt();
                     jugar();
                 } else {
-
+                    log('Incorrecto.');
                     log('Fin del examen. Otra vez será... Has contestado ' + score + ' preguntas correctamente.', 'red');
+                    biglog(  score  , 'magenta');
                     score = 0;
 
                     rl.prompt();
