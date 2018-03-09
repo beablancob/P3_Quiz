@@ -134,9 +134,9 @@ exports.playCmd = rl => {
     //Los resultados
     const jugar = () => {
     if(toBeResolved.length === 0){
-       log('Eres el mejor! Has ganado la partida, acertando '+ score+ 'preguntas.');
+       log('Eres el mejor! Has ganado la partida, acertando '+ score+ ' preguntas.');
         score=0;
-        biglog('WIN','green');
+        biglog('FIN','green');
         rl.prompt();
     } else {
             let id = Math.floor(Math.random() * (toBeResolved.length ));
