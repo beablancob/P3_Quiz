@@ -136,7 +136,8 @@ exports.playCmd = rl => {
     if(toBeResolved.length === 0){
        log('Eres el mejor! Has ganado la partida, acertando '+ score+ ' preguntas.');
         score=0;
-        biglog('FIN','green');
+        biglog('WIN','green');
+        log('FIN!');
         rl.prompt();
     } else {
             let id = Math.floor(Math.random() * (toBeResolved.length ));
@@ -158,7 +159,7 @@ exports.playCmd = rl => {
                     jugar();
                 } else {
 
-                    log('Otra vez será... Has contestado ' + score + ' preguntas correctamente.', 'red');
+                    log('Fin del examen. Otra vez será... Has contestado ' + score + ' preguntas correctamente.', 'red');
                     score = 0;
 
                     rl.prompt();
