@@ -98,12 +98,14 @@ exports.testCmd = (rl, id) => {
                var respuesta = answer.toLowerCase().trim();
 
                if(respuesta === quiz.answer.toLowerCase()){
-                   log('Eres un genio!', 'green');
                    biglog('CORRECTO!', 'green');
+                   log('Eres un genio!', 'green');
+
                    rl.prompt();
                } else {
-                   log('Otra vez será...', 'red');
                    biglog('INCORRECTO!', 'red');
+                   log('Otra vez será...', 'red');
+
                    rl.prompt();
                }
            });
@@ -124,23 +126,21 @@ exports.testCmd = (rl, id) => {
 exports.playCmd = rl => {
 
    let score = 0;
+
    //Array que guarda las preguntas todavia sin responder
-    var i;
-    var toBeResolved = model.getAll(); //esto es un array
+    var toBeResolved = model.getAll();
 
     //Si el array esta vacio, mensaje que no hay nada que preguntar
     //Los resultados
+    const jugar = () => {
     if(toBeResolved.length === 0){
-       log('Eres el mejor! Has ganado la partida, acertando ', score, 'preguntas.');
+       log('Eres el mejor! Has ganado la partida, acertando '+ score+ 'preguntas.');
         score=0;
         biglog('WIN','green');
         rl.prompt();
     } else {
-        // let id = Math.random()*(toBeResolved.length-1) + 1; //quitarla del array metodo
-       // boolean pregunta = true;
-       for(i=toBeResolved.length; i > 0; i--){
-
-            let id = parseInt(Math.random() * toBeResolved.length);
+            let id = Math.floor(Math.random() * (toBeResolved.length ));
+            log(`${toBeResolved.length}`);
 
             let quizzz = toBeResolved[id];
             console.log(colorize(`${quizzz.question}`, 'red'));
@@ -152,15 +152,15 @@ exports.playCmd = rl => {
                     score++;
 
                     log('Eres un genio!, Llevas ' + score + ' respuestas correctas.');
-                    toBeResolved.splice(1, id);
+                    toBeResolved.splice(id, 1);
 
                     rl.prompt();
+                    jugar();
                 } else {
 
                     log('Otra vez será... Has contestado ' + score + ' preguntas correctamente.', 'red');
                     score = 0;
-                    return;
-                   // pregunta = false;
+
                     rl.prompt();
                 }
             });
@@ -169,6 +169,7 @@ exports.playCmd = rl => {
         }
 
     }
+    jugar();
 
 
 
