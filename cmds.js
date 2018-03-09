@@ -98,12 +98,12 @@ exports.testCmd = (rl, id) => {
                var respuesta = answer.toLowerCase().trim();
                log(' Su respuesta es: ');
                if(respuesta === quiz.answer.toLowerCase()){
-                   biglog('CORRECTA!', 'green');
+                   biglog('Correcta', 'green');
                    log('Eres un genio!', 'green');
 
                    rl.prompt();
                } else {
-                   biglog('INCORRECTA!', 'red');
+                   biglog('Icorrecta', 'red');
                    log('Otra vez será...', 'red');
 
                    rl.prompt();
