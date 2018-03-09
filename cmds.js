@@ -35,11 +35,11 @@ exports.helpCmd = rl => {
  */
 exports.addCmd = rl => {
 
-    rl.question(colorize('Introduzca una pregunta: ', 'red'), question => {
-        rl.question(colorize('Introduzca la respuesta: ', 'red'), answer =>{
+    rl.question(colorize('Introduzca una pregunta: ', 'magenta'), question => {
+        rl.question(colorize('Introduzca la respuesta: ', 'magenta'), answer =>{
 
             model.add(question, answer); //aqui añado al modelo el string question y el string respuesta
-            log(`${colorize('Se ha añadido', 'magenta')}: ${question} ${colorize('=>', 'magenta')} ${answer}`)
+            log(`${colorize('Se ha añadido', 'red')}: ${question} ${colorize('=>', 'red')} ${answer}`)
             rl.prompt(); //hasta que no he contestado a la pregunta y la respuesta no puedo llamar al prompt
         });
     });
@@ -90,8 +90,8 @@ exports.testCmd = (rl, id) => {
     } else {
         try {
            const quiz = model.getByIndex(id);
-           console.log(colorize(`${quiz.question}`, 'magenta'));
-           rl.question(colorize('Introduzca la respuesta: ', 'magenta'), answer =>{
+           console.log(colorize(`${quiz.question}`, 'red'));
+           rl.question(colorize('Introduzca la respuesta: ', 'red'), answer =>{
 
                //trim quita los espacios en blanco
                //tambien quitamos las mayusculas
@@ -124,48 +124,51 @@ exports.testCmd = (rl, id) => {
 exports.playCmd = rl => {
 
    let score = 0;
-   //Array que guarda las preguntas respondidas correctamente para que no se repitan
-   //let toBeResolved = [];
+   //Array que guarda las preguntas todavia sin responder
+    var i;
+    var toBeResolved = model.getAll(); //esto es un array
 
-  let toBeResolved = [];
-   //toBeResolved = model.getAll();
-var i;
-for(i = 0; i<model.getAll().length; i++){
-    model[i]=toBeResolved[i];
-}
     //Si el array esta vacio, mensaje que no hay nada que preguntar
     //Los resultados
-    if(toBeResolved === 0){
+    if(toBeResolved.length === 0){
        log('Eres el mejor! Has ganado la partida, acertando ', score, 'preguntas.');
         score=0;
         biglog('WIN','green');
         rl.prompt();
     } else {
-       let id = Math.random()*(toBeResolved.length-1) + 1; //quitarla del array metodo
-        //let quiz = model.getByIndex(id);
-        let quizzz = toBeResolved[id];
-        console.log(colorize(`${quizzz.question}`, 'magenta'));
-        rl.question(colorize('Introduzca la respuesta: ', 'magenta'), answer =>{
+        // let id = Math.random()*(toBeResolved.length-1) + 1; //quitarla del array metodo
+       // boolean pregunta = true;
+       for(i=toBeResolved.length; i > 0; i--){
 
-            var ans = answer.toLowerCase().trim();
+            let id = parseInt(Math.random() * toBeResolved.length);
 
-            if(ans === quizzz.answer.toLowerCase()){
-                score++;
-                log('Eres un genio!, Llevas ', score, 'respuestas correctas.');
-                toBeResolved.splice(1, id);
-                rl.prompt();
-            } else {
+            let quizzz = toBeResolved[id];
+            console.log(colorize(`${quizzz.question}`, 'red'));
+            rl.question(colorize('Introduzca la respuesta: ', 'red'), answer => {
 
-                log('Otra vez será... Has contestado', score, 'preguntas correctamente.');
-                score =0;
-                rl.prompt();
-            }
-        });
+                var ans = answer.toLowerCase().trim();
 
+                if (ans === quizzz.answer.toLowerCase()) {
+                    score++;
+
+                    log('Eres un genio!, Llevas ' + score + ' respuestas correctas.');
+                    toBeResolved.splice(1, id);
+
+                    rl.prompt();
+                } else {
+
+                    log('Otra vez será... Has contestado ' + score + ' preguntas correctamente.', 'red');
+                    score = 0;
+                    return;
+                   // pregunta = false;
+                    rl.prompt();
+                }
+            });
+
+
+        }
 
     }
-
-
 
 
 
