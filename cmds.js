@@ -96,17 +96,15 @@ exports.testCmd = (rl, id) => {
                //trim quita los espacios en blanco
                //tambien quitamos las mayusculas
                var respuesta = answer.toLowerCase().trim();
-               log(' Su respuesta es: ');
+
                if(respuesta === quiz.answer.toLowerCase()){
-                   biglog('Correcta', 'green');
-                  // log('Eres un genio!', 'green');
-
-
+                   log(' Su respuesta es correcta.');
+                   biglog('Correcta!', 'green');
+                  log('Eres un genio!', 'green');
                } else {
-                   biglog('Icorrecta', 'red');
-                  // log('Otra vez será...', 'red');
-
-
+                   log(' Su respuesta es incorrecta.');
+                   biglog('Incorrecta', 'red');
+                  log('Otra vez será...', 'red');
                }
                rl.prompt();
            });
