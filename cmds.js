@@ -101,13 +101,14 @@ exports.testCmd = (rl, id) => {
                    biglog('Correcta', 'green');
                   // log('Eres un genio!', 'green');
 
-                   rl.prompt();
+
                } else {
                    biglog('Icorrecta', 'red');
                   // log('Otra vez será...', 'red');
 
-                   rl.prompt();
+
                }
+               rl.prompt();
            });
 
         }catch (error) {
@@ -134,7 +135,7 @@ exports.playCmd = rl => {
     //Los resultados
     const jugar = () => {
     if(toBeResolved.length === 0){
-       log('Eres el mejor! Has ganado la partida, acertando '+ score+ ' preguntas.');
+       log('Eres el mejor! Has ganado la partida, acertando '+ score + ' preguntas.');
         score=0;
         biglog('WIN','green');
         log('FIN!');
@@ -242,7 +243,7 @@ exports.editCmd = (rl, id) =>{
  *
  */
 exports.creditsCmd = rl => {
-    log("Autor de la practica:");
+    log("Autor de la práctica:");
     log("Beatriz Blanco Béjar");
     rl.prompt();
 };
