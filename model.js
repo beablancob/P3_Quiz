@@ -31,8 +31,8 @@ sequelize.define('quiz', {
  * En caso de error en algun sitio, creo el catch
  * Exporto al final el sequelize.
  */
-sequelize.sync()
-.then(() => sequelize.models.quiz.count())
+sequelize.sync() //Comprobacion de que están las tablas en la base de datos
+.then(() => sequelize.models.quiz.count()) //Funcion que cuenta cuantos hay
 .then(count => {
     if(!count){
         return sequelize.models.quiz.bulkCreate([

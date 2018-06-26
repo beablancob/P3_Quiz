@@ -9,8 +9,8 @@ const {colorize, log, biglog, errorlog} = require("./out");
  * Muestra la ayuda
  * @param rl Objeto readline usado para implementar el CLI
  */
-exports.helpCmd = rl => {
-    log("Commandos:"); //la maquina responde
+exports.helpCmd = (rl) => {
+    log("Comandos:"); //la maquina responde
     log("  h|help - Muestra esta ayuda."); //si no pongo log("hjdhl",'color'), pone el color por defecto
     log("  list - Listar los quizzes existentes.");
     log("  show <id> - Muestra la pregunta y la respuesta del quiz indicadp");
@@ -22,6 +22,28 @@ exports.helpCmd = rl => {
     log("  credits - Créditos.");
     log("  q|quit - Salir del programa.");
     rl.prompt();
+};
+/**
+ * Esta función devuelve una promesa que:
+ *   -Valida que se ha introducido un valor para el parámetro.
+ *   -Convierte el parámetro en un número entero.
+ * Si todx va bien, la promesa se satisface y devuelve el valor del id
+ * @param id Parámetro con el índice a validar.
+ */
+const validateId = id => {
+
+    return new Sequelize.Promise((resolve, reject) => {
+        if(typeof id === "undefined"){
+            reject(new Error(`Falta el parámetro <id>.`));
+        } else {
+            id = parseInt(id); //Coger la parte entera y descartar lo demás
+            if(Number.isNaN(id)) {
+                reject(new Error(`El valor del parámetro <id> no es un número`));
+            } else {
+                resolve(id);
+            }
+        }
+    });
 };
 /**
  * Esta función convierte la llamada rl.question, que está basada en callbacks,
@@ -59,7 +81,7 @@ const makeQuestion = (rl, text) => {
  */
 exports.addCmd = rl => {
     makeQuestion(rl, ' Introduzca una pregunta: ')
-    .then(q =>{
+    .then(q => { // q es como un parametro de un metodo (string q)
         return makeQuestion(rl, ' Introduzca la respuesta: ')
             .then(a => {
                 return {question: q, answer: a};
@@ -71,7 +93,7 @@ exports.addCmd = rl => {
             return models.quiz.create(quiz);
         })
 
-    .then((quiz) => {
+    .then(quiz => {
         log(`${colorize('Se ha añadido', 'red')}: ${quiz.question} ${colorize('=>', 'red')} ${quiz.answer}`)
     })
     //por si hay un modelo de validación: preguntas o respuestas vacías...
@@ -95,9 +117,10 @@ exports.addCmd = rl => {
  */
 exports.listCmd = rl => {
     models.quiz.findAll() //devuelve un array con todos los quizzes
-    .each(quiz => {
-        //recorro el array
-        log(`[${colorize(quiz.id, 'magenta')}]: ${quiz.question}`);
+    .then(quizzes => {
+        quizzes.forEach(quiz => {
+            log(` [${colorize(quiz.id, 'magenta')}]: ${quiz.question}`);
+        });
     })
     .catch(error => {
         errorlog(error.message);
@@ -105,31 +128,10 @@ exports.listCmd = rl => {
     .then(() => {
         //El prompt no lo saco hasta que no haya terminado las siguientes promesas
         rl.prompt();
-    });
+    })
 };
 
-/**
- * Esta función devuelve una promesa que:
- *   -Valida que se ha introducido un valor para el parámetro.
- *   -Convierte el parámetro en un número entero.
- * Si todx va bien, la promesa se satisface y devuelve el valor del id
- * @param id Parámetro con el índice a validar.
- */
-const validateId = id => {
 
-    return new Sequelize.Promise((resolve, reject) => {
-        if(typeof id === "undefined"){
-            reject(new Error(`Falta el parámetro <id>.`));
-        } else {
-            id = parseInt(id); //Coger la parte entera y descartar lo demás
-            if(Number.isNaN(id)) {
-                reject(new Error(`El valor del parámetro <id> no es un número`));
-            } else {
-                resolve(id);
-            }
-        }
-    });
-};
 
 /**
  * Dado un id tengo que comprobar si es un numero, un comando indefinido... me creo una funcion que devuelva la promesa
@@ -206,68 +208,64 @@ exports.testCmd = (rl, id) => {
 exports.playCmd = rl => {
 
     let score = 0;
+    let toBeResolved;
 
-    //Array que guarda las preguntas todavia sin responder
-    var toBeResolved = sequelize.model.getAll();
+    //Si el array esta vacio, mensaje que no hay nada que preguntar
+    //Los resultados
+    models.quiz.findAll()
+        .then(quizzes => {
+            toBeResolved = quizzes;
+            const jugar = () => {
+                if (toBeResolved.length === 0) {
+                    log('Eres el mejor! Has ganado la partida, acertando ' + score + ' preguntas.');
+                    score = 0;
+                    biglog('WIN', 'green');
+                    log('FIN!');
+                  return;
+                } else {
+                    let id = Math.floor(Math.random() * (toBeResolved.length));
+                    log(`${toBeResolved.length}`);
 
-    const jugar = () => {
-        if (toBeResolved.length === 0) {
-            log('Eres el mejor! Has ganado la partida, acertando ' + score + ' preguntas.');
-            score = 0;
-            biglog('WIN', 'green');
-            log('FIN!');
-        } else {
+                    let quizzz = toBeResolved[id];
 
-            each(quiz => {
-                //recorro el array
-                let id = Math.floor(Math.random() * (toBeResolved.length));
-                log(`${toBeResolved.length}`);
-                validateId(id)
-                    .then(quiz => {
-                        if (!quiz) {
-                            throw new Error(`No existe un quiz asociado al id=${id}`)
+
+                    return makeQuestion(rl,`${quiz.question} `)
+                        .then(answer =>{
+                        log(' Su respuesta es: ');
+                        var ans = answer.toLowerCase().trim();
+
+                        if (ans === quizzz.answer.toLowerCase().trim()) {
+                            score++;
+
+                            log('Correcto. Eres un genio! Llevas ' + score + ' respuestas correctas.');
+                            toBeResolved.splice(id, 1);
+
+
+                            jugar();
+                        } else {
+                            log('Incorrecto.');
+                            log('Fin del examen. Otra vez será... Has contestado ' + score + ' preguntas correctamente.', 'red');
+                            biglog(score, 'magenta');
+                            score = 0;
+                            return;
+
                         }
-                        makeQuestion(rl, '¿' + quiz + '?')
-                            .then(a => {
-                                return {question: quiz, answer: a};
-                                var respuesta = a.toLowerCase().trim();
-
-                                if (repuesta === quiz.answer.toLowerCase()) {
-                                    score++;
-
-                                    log('Correcto. Eres un genio! Llevas ' + score + ' respuestas correctas.');
-                                    toBeResolved.splice(id, 1);
-
-                                    rl.prompt();
-                                    jugar();
-                                } else {
-
-                                    log(' Su respuesta es incorrecta.');
-                                    biglog('Incorrecta', 'red');
-                                    log('Otra vez será...', 'red');
-                                    score = 0;
-
-                                    then(() => {
-                                        rl.prompt();
-                                    })
-                                }
-                            })
-                    })
-                    .catch(error => {
-                        errorlog(error.message);
-                    })
-                    //haya pasado lo que haya pasado, una vez q han terminado todas las promesas, tengo un .then
-                    // para volver a adaptar el prompt
-                    .then(() => {
-                        rl.prompt();
-
                     });
-            });
-        }
-    }
+                }
+
+            }
+            jugar();
+        })
+        .catch(error=> {
+            console.log(error);
+            rl.prompt();
+        })
+
+        .then(() => {
+            rl.prompt();
+        });
 
 };
-
 
 /**
  * Borra un quiz del modelo
@@ -276,14 +274,51 @@ exports.playCmd = rl => {
  */
 exports.deleteCmd = (rl, id) => {
     validateId(id)
-    .then(id => sequelize.models.quiz.destroy({where: {id}})) //accedo a la base de datos models, a la tabla quiz y elimino el elemento que corresponda con el id
-    .catch(error => {
+     .then(id => {
+         models.quiz.findById(id) //Encuentro el id pasado por parametro
+        var a;
+        let i;
+     })
+     .then(quizzzes => {
+        if (id < models.quiz.length) { //si el id es menor que el numero de quizes
+
+                var toBeResolved = quizzzes; //creo un array paralelo con los mismos quizes
+                models.quiz.destroy({where: {id}}) //destruyo el id con ese quiz
+
+                for(i=id+1; i<quizzzes.length -1; i++){
+                for(j = id ; j<quizzzes.length; j++ ){
+                toBeResolved.j=quizzzes.i;
+                quizzzes.j = toBeResolved.i;
+            }
+            }
+              //  models.quiz.destroy({where: {id}}) //Destruido el quiz con el id pasado por parametro
+
+        }else {
+
+            models.quiz.destroy({where: {id}})
+        }
+
+     })
+    //accedo a la base de datos models, a la tabla quiz y elimino el elemento que corresponda con el id
+     .catch(error => {
         errorlog(error.message);
     })
-    .then(() => {
+     .then(() => {
       rl.prompt();
     });
+     };
+
+    /**validateId(id)
+        .then(id => models.quiz.destroy({where: {id}}))
+        .catch(error => {
+            errorlog(error.message);
+        })
+        .then(() => {
+            rl.prompt();
+        });
+
 };
+*/
 /**
  * Edita un quiz del modelo. En vez de tener que escribir entera la entrada nueva,
  * te deja editar lo que ya está escrito mostrándolo por pantalla en la parte donde
@@ -310,7 +345,7 @@ exports.editCmd = (rl, id) =>{
                 .then(q => {
                     process.stdout.isTTY && setTimeout(() => {rl.write(quiz.answer)}, 0);
                     return makeQuestion(rl, 'Introduzca la respuesta: ')
-                    then(a => {
+                        .then(a => {
                         quiz.question = q;
                         quiz.answer = a;
                         return quiz;
@@ -318,7 +353,7 @@ exports.editCmd = (rl, id) =>{
                 });
         })
         .then(quiz => {
-            return sequelize.model.quiz.save();
+            return quiz.save();
         })
         .then(quiz => {
             log(`Se ha cambiado el quiz ${colorize(quiz.id, 'magenta')} por: ${quiz.question} ${colorize('=>', 'magenta')} ${quiz.answer}`)
@@ -352,4 +387,5 @@ exports.creditsCmd = rl => {
 
 exports.quitCmd = rl => {
     rl.close();
+    rl.prompt();
 };

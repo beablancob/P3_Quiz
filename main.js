@@ -1,5 +1,6 @@
 //modulos que requiere este main.js
 const readline = require('readline');
+const model = require('./model');
 
  //otra forma es que coja los metodos uno a uno del modulo
 const {colorize, log, biglog, errorlog} = require("./out");
@@ -37,7 +38,7 @@ rl
 
   switch (cmd) { //el prompt se tiene que poner detras de las funciones que tengo porque algunas son asincronas
       case '':
-  	  rl.prompt(); //si el usuario no escribe nada se termina. el resto de llamadas tendra la llamada al prompt internamente
+  	  rl.prompt(rl); //si el usuario no escribe nada se termina. el resto de llamadas tendra la llamada al prompt internamente
   	break;
 
     case 'h': //cuando el usuario manda un h
