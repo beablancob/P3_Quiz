@@ -169,7 +169,7 @@ exports.testCmd = (rl, id) => {
         .then(id => models.quiz.findById(id))
         .then(quiz => {
             if (!quiz) {
-                throw new Error(`No existe un quiz asociado al id=${id}`);
+                throw new Error(`No existe un quiz asociado al id=${id}.`);
             }
             makeQuestion(rl, '¿' + quiz.question + '? ')
                 .then(a => {
@@ -184,6 +184,7 @@ exports.testCmd = (rl, id) => {
                         log('Otra vez será...', 'red');
                     }
                 })
+        })
                 .catch(error => {
                     errorlog(error.message);
                 })
@@ -193,7 +194,7 @@ exports.testCmd = (rl, id) => {
                     rl.prompt();
 
                 });
-        });
+
 
 };
 
