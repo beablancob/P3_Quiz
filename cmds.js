@@ -229,7 +229,7 @@ exports.playCmd = rl => {
                     let quizzz = toBeResolved[id];
 
 
-                    return makeQuestion(rl,`${quiz.question} `)
+                    return makeQuestion(rl,`${quizzz.question} `)
                         .then(answer =>{
                         log(' Su respuesta es: ');
                         var ans = answer.toLowerCase().trim();
